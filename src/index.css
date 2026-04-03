@@ -137,3 +137,40 @@
     color: var(--midnight);
   }
 }
+
+/* Navbar */
+.animate-slide-down {
+  background: linear-gradient(
+    to bottom,
+    rgba(10, 22, 40, 0.95),
+    rgba(10, 22, 40, 0)
+  );
+  backdrop-filter: blur(10px);
+  animation: slideDown 0.8s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--gold);
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}

@@ -80,7 +80,7 @@ export default function BranchFinder() {
           </h2>
           {searchQuery && (
             <p
-              className="mt-2 text-[1rem] font-light text-slate-brand"
+              className="mt-2 text-[1rem] tracking-wider font-light text-slate-brand"
               style={{ fontFamily: "'Jost', sans-serif" }}
             >
               Showing results for &ldquo;{searchQuery}&rdquo;

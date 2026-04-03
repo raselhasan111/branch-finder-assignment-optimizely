@@ -9,7 +9,7 @@ export default function SearchBar({ value, onChange }: SearchBarProps) {
   return (
     <div className="relative z-20 mx-auto -mt-8 w-full max-w-[700px] px-4">
       <div
-        className="flex h-16 items-center rounded-[50px] border-2 border-cream bg-warm-white px-6"
+        className="flex h-16 items-center rounded-[50px] border-2 border-cream bg-warm-white px-6 transition-colors duration-300 hover:border-gold focus-within:border-gold"
         style={{ boxShadow: '0 30px 60px rgba(10, 22, 40, 0.1)' }}
       >
         <Search className="mr-3 h-5 w-5 flex-shrink-0 text-gold" />

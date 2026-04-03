@@ -14,20 +14,19 @@ export default function FilterPills({
   onClear,
 }: FilterPillsProps) {
   return (
-    <div className="mt-6 flex flex-wrap justify-center gap-3">
+    <div className="mt-6 flex flex-wrap justify-center gap-4">
       {FILTERS.map((filter) => {
         const isActive = activeFilters.includes(filter);
         return (
           <button
             key={filter}
             onClick={() => onToggle(filter)}
-            className="rounded-[25px] border-2 px-6 py-[0.6rem] text-[0.85rem] font-semibold uppercase tracking-[0.5px] transition-all duration-300 hover:-translate-y-[2px]"
-            style={{
-              fontFamily: "'Jost', sans-serif",
-              background: isActive ? '#0a1628' : '#f8f6f1',
-              color: isActive ? '#fefdfb' : '#0a1628',
-              borderColor: isActive ? '#d4af37' : 'transparent',
-            }}
+            className={`rounded-[25px] border-2 px-6 py-[0.6rem] text-[0.9rem] font-medium transition-all duration-300 ${
+              isActive
+                ? 'border-gold bg-midnight text-warm-white'
+                : 'border-transparent bg-cream text-midnight hover:border-gold'
+            }`}
+            style={{ fontFamily: "'Jost', sans-serif" }}
           >
             {filter}
           </button>
@@ -36,7 +35,7 @@ export default function FilterPills({
       {activeFilters.length > 0 && (
         <button
           onClick={onClear}
-          className="ml-2 flex items-center gap-1 rounded-[25px] px-4 py-[0.6rem] text-[0.85rem] font-medium text-slate-brand transition-colors duration-300 hover:text-midnight"
+          className="flex items-center gap-1 rounded-[25px] border-2 border-transparent bg-red-100 px-6 py-[0.6rem] text-[0.9rem] font-medium text-red-700 transition-all duration-300 hover:bg-red-500 hover:text-white"
           style={{ fontFamily: "'Jost', sans-serif" }}
         >
           <X className="h-4 w-4" />
