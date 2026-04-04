@@ -1,5 +1,5 @@
 import { useState, useMemo, useDeferredValue } from 'react';
-import MapPlaceholder from '@/components/branches/MapPlaceholder';
+import BranchMap from '@/components/branches/BranchMap';
 import SearchBar from '@/components/branches/SearchBar';
 import CountryFilter from '@/components/branches/CountryFilter';
 import SortSelect from '@/components/branches/SortSelect';
@@ -52,47 +52,34 @@ export default function BranchFinder() {
   const allBranchesQuery = useAllBranches();
 
   // Determine which data source to use and apply client-side filtering
-  const { displayBranches, totalResults, isLoading, isError, error, refetch } =
-    useMemo(() => {
-      // When searching: use server results, optionally post-filter
-      if (hasSearchQuery) {
-        if (!serverQuery.data)
-          return {
-            displayBranches: [],
-            totalResults: 0,
-            isLoading: serverQuery.isLoading,
-            isError: serverQuery.isError,
-            error: serverQuery.error,
-            refetch: serverQuery.refetch,
-          };
-
-        if (!hasClientFilters) {
-          return {
-            displayBranches: serverQuery.data.branches,
-            totalResults: serverQuery.data.total,
-            isLoading: false,
-            isError: false,
-            error: null,
-            refetch: serverQuery.refetch,
-          };
-        }
-
-        const result = filterAndSortBranches(
-          serverQuery.data.branches,
-          {
-            country: selectedCountry,
-            radius,
-            sort: effectiveSort,
-            userLat: location?.latitude ?? null,
-            userLon: location?.longitude ?? null,
-          },
-          currentPage,
-          ITEMS_PER_PAGE,
-        );
-
+  const {
+    displayBranches,
+    mapBranches,
+    totalResults,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useMemo(() => {
+    // When searching: use server results, optionally post-filter
+    if (hasSearchQuery) {
+      // Treat stale placeholder data as loading — don't show previous results
+      if (!serverQuery.data || serverQuery.isPlaceholderData)
         return {
-          displayBranches: result.branches,
-          totalResults: result.total,
+          displayBranches: [],
+          mapBranches: [],
+          totalResults: 0,
+          isLoading: serverQuery.isLoading || serverQuery.isPlaceholderData,
+          isError: serverQuery.isError,
+          error: serverQuery.error,
+          refetch: serverQuery.refetch,
+        };
+
+      if (!hasClientFilters) {
+        return {
+          displayBranches: serverQuery.data.branches,
+          mapBranches: serverQuery.data.branches,
+          totalResults: serverQuery.data.total,
           isLoading: false,
           isError: false,
           error: null,
@@ -100,19 +87,8 @@ export default function BranchFinder() {
         };
       }
 
-      // No search query: use full dataset with client-side filtering
-      if (!allBranchesQuery.data)
-        return {
-          displayBranches: [],
-          totalResults: 0,
-          isLoading: allBranchesQuery.isLoading,
-          isError: allBranchesQuery.isError,
-          error: allBranchesQuery.error,
-          refetch: allBranchesQuery.refetch,
-        };
-
       const result = filterAndSortBranches(
-        allBranchesQuery.data,
+        serverQuery.data.branches,
         {
           country: selectedCountry,
           radius,
@@ -126,23 +102,60 @@ export default function BranchFinder() {
 
       return {
         displayBranches: result.branches,
+        mapBranches: result.allFiltered,
         totalResults: result.total,
         isLoading: false,
         isError: false,
         error: null,
+        refetch: serverQuery.refetch,
+      };
+    }
+
+    // No search query: use full dataset with client-side filtering
+    if (!allBranchesQuery.data)
+      return {
+        displayBranches: [],
+        mapBranches: [],
+        totalResults: 0,
+        isLoading: allBranchesQuery.isLoading,
+        isError: allBranchesQuery.isError,
+        error: allBranchesQuery.error,
         refetch: allBranchesQuery.refetch,
       };
-    }, [
-      hasSearchQuery,
-      hasClientFilters,
-      serverQuery,
-      allBranchesQuery,
-      selectedCountry,
-      radius,
-      effectiveSort,
-      location,
+
+    const result = filterAndSortBranches(
+      allBranchesQuery.data,
+      {
+        country: selectedCountry,
+        radius,
+        sort: effectiveSort,
+        userLat: location?.latitude ?? null,
+        userLon: location?.longitude ?? null,
+      },
       currentPage,
-    ]);
+      ITEMS_PER_PAGE,
+    );
+
+    return {
+      displayBranches: result.branches,
+      mapBranches: result.allFiltered,
+      totalResults: result.total,
+      isLoading: false,
+      isError: false,
+      error: null,
+      refetch: allBranchesQuery.refetch,
+    };
+  }, [
+    hasSearchQuery,
+    hasClientFilters,
+    serverQuery,
+    allBranchesQuery,
+    selectedCountry,
+    radius,
+    effectiveSort,
+    location,
+    currentPage,
+  ]);
 
   const totalPages = Math.ceil(totalResults / ITEMS_PER_PAGE);
 
@@ -176,7 +189,7 @@ export default function BranchFinder() {
   return (
     <div>
       {/* Hero Map */}
-      <MapPlaceholder />
+      <BranchMap branches={mapBranches} />
 
       {/* Search */}
       <SearchBar value={searchQuery} onChange={handleSearchChange} />
