@@ -174,7 +174,7 @@ export default function BranchFinder() {
   };
 
   return (
-    <div className="pt-20">
+    <div>
       {/* Hero Map */}
       <MapPlaceholder />
 
