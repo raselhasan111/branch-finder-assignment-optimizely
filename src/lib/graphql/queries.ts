@@ -40,3 +40,14 @@ export const LIST_BRANCHES = gql`
     }
   }
 `;
+
+export const LIST_ALL_BRANCHES = gql`
+  query ListAllBranches($limit: Int!, $skip: Int!) {
+    Branch(limit: $limit, skip: $skip) {
+      items {
+        ${BRANCH_FIELDS}
+      }
+      total
+    }
+  }
+`;

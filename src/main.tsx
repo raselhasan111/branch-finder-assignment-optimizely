@@ -57,11 +57,15 @@ const queryClient = new QueryClient({
   },
 });
 
+import { LocationProvider } from '@/contexts/LocationContext';
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-      <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
+    <LocationProvider>
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
+    </LocationProvider>
   </StrictMode>,
 );

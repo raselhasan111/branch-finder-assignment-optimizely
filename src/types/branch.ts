@@ -30,6 +30,20 @@ export interface PaginatedBranches {
   total: number;
 }
 
+export interface CountryOption {
+  country: string;
+  countryCode: string;
+  count: number;
+}
+
+export type SortOption = 'relevance' | 'distance' | 'name';
+
+export interface BranchFilters {
+  country: string | null;
+  sort: SortOption;
+  radius: number | null; // km, null = no limit
+}
+
 export function parseCoordinates(
   coords: string | null,
 ): [number | null, number | null] {

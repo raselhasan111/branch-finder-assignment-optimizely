@@ -46,7 +46,7 @@ export default function MapPlaceholder() {
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <MapPin className="mb-3 h-10 w-10 text-gold" />
         <p
-          className="text-[1.5rem] font-medium uppercase tracking-[3px] text-sage"
+          className="text-center text-[1.5rem] font-medium uppercase tracking-[3px] text-sage"
           style={{ fontFamily: "'Jost', sans-serif" }}
         >
           Interactive Map Coming Soon

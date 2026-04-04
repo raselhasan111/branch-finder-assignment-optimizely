@@ -1,11 +1,32 @@
-import { MapPin, Phone, Mail, ArrowRight } from 'lucide-react';
+import { MapPin, Phone, Mail, ArrowRight, Navigation } from 'lucide-react';
 import type { Branch } from '@/types/branch';
+import { parseCoordinates } from '@/types/branch';
+import { useLocation } from '@/contexts/LocationContext';
+import { calculateDistance } from '@/lib/utils';
 
 interface BranchCardProps {
   branch: Branch;
 }
 
+function formatDistance(km: number): string {
+  if (km < 1) return `${Math.round(km * 1000)} m`;
+  if (km < 10) return `${km.toFixed(1)} km`;
+  return `${Math.round(km)} km`;
+}
+
 export default function BranchCard({ branch }: BranchCardProps) {
+  const { location } = useLocation();
+  const [branchLat, branchLon] = parseCoordinates(branch.Coordinates);
+
+  const distance =
+    location && branchLat != null && branchLon != null
+      ? calculateDistance(
+          location.latitude,
+          location.longitude,
+          branchLat,
+          branchLon,
+        )
+      : null;
   return (
     <div
       className="group relative flex cursor-pointer flex-col overflow-hidden rounded-[25px] bg-cream transition-all duration-500"
@@ -23,19 +44,35 @@ export default function BranchCard({ branch }: BranchCardProps) {
         className="relative h-[180px] w-full"
         style={{ background: 'linear-gradient(135deg, #1a2942, #0d4d56)' }}
       >
-        {/* Country badge */}
-        {branch.CountryCode && (
-          <div
-            className="absolute left-6 top-6 rounded-[20px] px-[1.2rem] py-2 text-[0.85rem] font-semibold uppercase"
-            style={{
-              fontFamily: "'Jost', sans-serif",
-              background: '#d4af37',
-              color: '#0a1628',
-            }}
-          >
-            {branch.CountryCode}
-          </div>
-        )}
+        {/* Top-left badge: distance when available, country as fallback */}
+        <div className="absolute left-6 top-6">
+          {distance != null ? (
+            <div
+              className="flex items-center gap-1.5 rounded-[20px] px-[1.2rem] py-2 text-[0.85rem] font-semibold uppercase"
+              style={{
+                fontFamily: "'Jost', sans-serif",
+                background: '#d4af37',
+                color: '#0a1628',
+              }}
+            >
+              <Navigation className="h-3.5 w-3.5" />
+              {formatDistance(distance)}
+            </div>
+          ) : (
+            branch.CountryCode && (
+              <div
+                className="rounded-[20px] px-[1.2rem] py-2 text-[0.85rem] font-semibold uppercase"
+                style={{
+                  fontFamily: "'Jost', sans-serif",
+                  background: '#d4af37',
+                  color: '#0a1628',
+                }}
+              >
+                {branch.CountryCode}
+              </div>
+            )
+          )}
+        </div>
       </div>
 
       {/* Content */}
@@ -92,13 +129,13 @@ export default function BranchCard({ branch }: BranchCardProps) {
         )}
 
         {/* CTA */}
-        <div className="mt-auto">
+        <div className="mt-auto pt-2">
           <button
-            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-[50px] bg-gold px-[2rem] py-[1rem] text-[1rem] font-medium text-midnight transition-all duration-300 hover:-translate-y-[2px] hover:bg-midnight hover:text-warm-white"
+            className="group/cta flex cursor-pointer items-center gap-1 text-[0.95rem] font-medium text-gold transition-colors duration-300 hover:text-midnight"
             style={{ fontFamily: "'Jost', sans-serif" }}
           >
-            View Details
-            <ArrowRight className="h-4 w-4" />
+            Read More
+            <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover/cta:translate-x-1" />
           </button>
         </div>
       </div>
