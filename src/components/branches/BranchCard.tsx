@@ -1,5 +1,5 @@
-import { Navigation, ArrowRight } from 'lucide-react';
-import type { Branch } from '@/data/branches';
+import { MapPin, Phone, Mail, ArrowRight } from 'lucide-react';
+import type { Branch } from '@/types/branch';
 
 interface BranchCardProps {
   branch: Branch;
@@ -23,65 +23,73 @@ export default function BranchCard({ branch }: BranchCardProps) {
         className="relative h-[180px] w-full"
         style={{ background: 'linear-gradient(135deg, #1a2942, #0d4d56)' }}
       >
-        {/* Status badge */}
-        <div
-          className="absolute left-6 top-6 rounded-[20px] px-[1.2rem] py-2 text-[0.85rem] font-semibold uppercase"
-          style={{
-            fontFamily: "'Jost', sans-serif",
-            background: branch.isOpen ? '#d4af37' : '#64748b',
-            color: '#0a1628',
-          }}
-        >
-          {branch.isOpen ? 'Open Now' : 'Closed'}
-        </div>
+        {/* Country badge */}
+        {branch.CountryCode && (
+          <div
+            className="absolute left-6 top-6 rounded-[20px] px-[1.2rem] py-2 text-[0.85rem] font-semibold uppercase"
+            style={{
+              fontFamily: "'Jost', sans-serif",
+              background: '#d4af37',
+              color: '#0a1628',
+            }}
+          >
+            {branch.CountryCode}
+          </div>
+        )}
       </div>
 
       {/* Content */}
       <div className="flex flex-1 flex-col p-10">
-        {/* Name + Distance */}
-        <div className="flex items-start justify-between gap-3">
-          <h3
-            className="mb-4 text-[1.8rem] font-semibold leading-tight text-midnight"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            {branch.name}
-          </h3>
-          <span className="flex shrink-0 items-center gap-1 text-[0.9rem] font-medium text-slate-brand">
-            <Navigation className="h-3.5 w-3.5" />
-            {branch.distance}
-          </span>
-        </div>
+        {/* Name */}
+        <h3
+          className="mb-4 text-[1.8rem] font-semibold leading-tight text-midnight"
+          style={{ fontFamily: "'Playfair Display', serif" }}
+        >
+          {branch.Name ?? 'Unknown Branch'}
+        </h3>
 
         {/* Address */}
-        <p
-          className="mb-8 text-[1rem] font-light leading-relaxed text-slate-brand"
-          style={{ fontFamily: "'Jost', sans-serif" }}
-        >
-          {branch.address}
-          <br />
-          {branch.city}, {branch.state} {branch.zip}
-        </p>
+        <div className="mb-6 flex items-start gap-2 text-slate-brand">
+          <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
+          <p
+            className="text-[1rem] font-light leading-relaxed"
+            style={{ fontFamily: "'Jost', sans-serif" }}
+          >
+            {branch.Street && (
+              <>
+                {branch.Street}
+                <br />
+              </>
+            )}
+            {[branch.City, branch.Country, branch.ZipCode]
+              .filter(Boolean)
+              .join(', ')}
+          </p>
+        </div>
 
-        {/* Hours */}
-        <p
-          className="mb-4 text-[0.9rem] font-normal text-slate-brand"
-          style={{ fontFamily: "'Jost', sans-serif" }}
-        >
-          {branch.hours}
-        </p>
-
-        {/* Service tags */}
-        <div className="mb-6 flex flex-wrap gap-2">
-          {branch.services.map((service) => (
+        {/* Contact details */}
+        {branch.Phone && (
+          <div className="mb-3 flex items-center gap-2 text-slate-brand">
+            <Phone className="h-4 w-4 shrink-0 text-gold" />
             <span
-              key={service}
-              className="rounded-[25px] bg-warm-white px-3 py-1 text-[0.8rem] font-medium uppercase tracking-[0.5px] text-midnight"
+              className="text-[0.95rem] font-light"
               style={{ fontFamily: "'Jost', sans-serif" }}
             >
-              {service}
+              {branch.Phone}
             </span>
-          ))}
-        </div>
+          </div>
+        )}
+        {branch.Email && (
+          <div className="mb-6 flex items-center gap-2 text-slate-brand">
+            <Mail className="h-4 w-4 shrink-0 text-gold" />
+            <span
+              className="text-[0.95rem] font-light"
+              style={{ fontFamily: "'Jost', sans-serif" }}
+            >
+              {branch.Email}
+            </span>
+          </div>
+        )}
 
         {/* CTA */}
         <div className="mt-auto">

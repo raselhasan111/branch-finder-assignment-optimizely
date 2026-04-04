@@ -1,60 +1,46 @@
-import { useState, useMemo } from 'react';
+import { useState, useDeferredValue } from 'react';
 import MapPlaceholder from '@/components/branches/MapPlaceholder';
 import SearchBar from '@/components/branches/SearchBar';
-import FilterPills from '@/components/branches/FilterPills';
 import BranchCard from '@/components/branches/BranchCard';
 import Pagination from '@/components/branches/Pagination';
-import { branches } from '@/data/branches';
+import BranchListSkeleton from '@/components/branches/BranchListSkeleton';
+import BranchError from '@/components/branches/BranchError';
+import { useBranches } from '@/hooks/use-branches';
 
-const ITEMS_PER_PAGE = 6;
+const ITEMS_PER_PAGE = 12;
 
 export default function BranchFinder() {
-  const [searchQuery, setSearchQuery] = useState('San Francisco, CA');
-  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const deferredQuery = useDeferredValue(searchQuery);
 
-  const filteredBranches = useMemo(() => {
-    return branches.filter((branch) => {
-      if (activeFilters.length === 0) return true;
-      return activeFilters.some((filter) => branch.services.includes(filter));
-    });
-  }, [activeFilters]);
-
-  const totalPages = Math.ceil(filteredBranches.length / ITEMS_PER_PAGE);
-  const paginatedBranches = filteredBranches.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE,
-  );
-
-  const handleToggleFilter = (filter: string) => {
-    setActiveFilters((prev) =>
-      prev.includes(filter)
-        ? prev.filter((f) => f !== filter)
-        : [...prev, filter],
-    );
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
     setCurrentPage(1);
   };
 
-  const handleClearFilters = () => {
-    setActiveFilters([]);
-    setCurrentPage(1);
-  };
+  const { data, isLoading, isError, error, refetch } = useBranches({
+    query: deferredQuery || undefined,
+    limit: ITEMS_PER_PAGE,
+    skip: (currentPage - 1) * ITEMS_PER_PAGE,
+  });
+
+  const totalPages = data ? Math.ceil(data.total / ITEMS_PER_PAGE) : 0;
 
   return (
     <div className="pt-20">
       {/* Hero Map */}
       <MapPlaceholder />
 
-      {/* Search + Filters */}
-      <SearchBar value={searchQuery} onChange={setSearchQuery} />
-      <div className="mx-auto max-w-[700px] px-4">
+      {/* Search */}
+      <SearchBar value={searchQuery} onChange={handleSearchChange} />
+      {/* <div className="mx-auto max-w-[700px] px-4">
         <FilterPills
           activeFilters={activeFilters}
           onToggle={handleToggleFilter}
           onClear={handleClearFilters}
         />
-      </div>
-
+      </div> */}
       {/* Results */}
       <section className="mx-auto max-w-[1400px] px-[5%] pb-32 pt-20">
         {/* Header */}
@@ -75,50 +61,62 @@ export default function BranchFinder() {
               lineHeight: 1.2,
             }}
           >
-            {filteredBranches.length} Branch
-            {filteredBranches.length !== 1 ? 'es' : ''} Found
+            {data
+              ? `${data.total} Branch${data.total !== 1 ? 'es' : ''} Found`
+              : 'Searching...'}
           </h2>
-          {searchQuery && (
+          {deferredQuery && (
             <p
-              className="mt-2 text-[1rem] tracking-wider font-light text-slate-brand"
+              className="mt-2 text-[1rem] font-light tracking-wider text-slate-brand"
               style={{ fontFamily: "'Jost', sans-serif" }}
             >
-              Showing results for &ldquo;{searchQuery}&rdquo;
+              Showing results for &ldquo;{deferredQuery}&rdquo;
             </p>
           )}
         </div>
 
+        {/* Loading */}
+        {isLoading && <BranchListSkeleton />}
+
+        {/* Error */}
+        {isError && (
+          <BranchError error={error as Error} onRetry={() => refetch()} />
+        )}
+
         {/* Card Grid */}
-        <div
-          className="grid gap-[2.5rem]"
-          style={{
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          }}
-        >
-          {paginatedBranches.map((branch) => (
-            <BranchCard key={branch.id} branch={branch} />
-          ))}
-        </div>
+        {data && data.branches.length > 0 && (
+          <div
+            className="grid gap-10"
+            style={{
+              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            }}
+          >
+            {data.branches.map((branch) => (
+              <BranchCard key={branch._id} branch={branch} />
+            ))}
+          </div>
+        )}
 
         {/* Empty state */}
-        {filteredBranches.length === 0 && (
+        {data && data.branches.length === 0 && (
           <div className="py-20 text-center">
             <p
               className="text-[1.15rem] font-light text-slate-brand"
               style={{ fontFamily: "'Jost', sans-serif" }}
             >
-              No branches match your current filters. Try adjusting your
-              criteria.
+              No branches found. Try a different search term.
             </p>
           </div>
         )}
 
         {/* Pagination */}
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-        />
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        )}
       </section>
     </div>
   );
