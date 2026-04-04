@@ -167,7 +167,7 @@ export default function BranchMap({ branches, onMarkerClick }: BranchMapProps) {
 
   if (!isLoaded) {
     return (
-      <div className="relative h-[260px] w-full animate-pulse overflow-hidden bg-cream sm:h-[360px] sm:rounded-[16px] lg:h-[420px] lg:rounded-[25px] xl:h-[480px]">
+      <div className="relative h-[380px] w-full animate-pulse overflow-hidden bg-cream md:h-[480px] sm:rounded-t-[16px] lg:h-[400px] lg:rounded-t-[25px] xl:h-[480px]">
         <div className="absolute inset-0 flex items-center justify-center">
           <div
             className="text-[0.9rem] font-medium uppercase tracking-[3px] text-sage"
@@ -228,7 +228,7 @@ export default function BranchMap({ branches, onMarkerClick }: BranchMapProps) {
     : [null, null];
 
   return (
-    <div className="relative h-[260px] w-full overflow-hidden sm:h-[360px] sm:rounded-[16px] lg:h-[420px] lg:rounded-[25px] xl:h-[480px]">
+    <div className="relative h-[380px] w-full overflow-hidden md:h-[480px] sm:rounded-t-[16px] lg:h-[400px] lg:rounded-t-[25px] xl:h-[480px]">
       {/* My Location button — above zoom controls */}
       {userLocation && (
         <button
