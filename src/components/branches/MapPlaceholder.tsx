@@ -3,7 +3,7 @@ import { MapPin } from 'lucide-react';
 export default function MapPlaceholder() {
   return (
     <div
-      className="relative h-[400px] w-full overflow-hidden"
+      className="relative h-[320px] md:h-[340px] lg:h-[360px] xl:h-[480px] w-full overflow-hidden"
       style={{ background: 'linear-gradient(135deg, #0a1628, #0d4d56)' }}
     >
       {/* Decorative grid pattern */}

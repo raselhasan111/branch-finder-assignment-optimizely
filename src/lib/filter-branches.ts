@@ -13,6 +13,7 @@ interface FilterOptions {
 interface FilteredResult {
   branches: Branch[];
   total: number;
+  allFiltered: Branch[];
 }
 
 export function filterAndSortBranches(
@@ -61,7 +62,7 @@ export function filterAndSortBranches(
   const start = (page - 1) * pageSize;
   const paged = filtered.slice(start, start + pageSize);
 
-  return { branches: paged, total };
+  return { branches: paged, total, allFiltered: filtered };
 }
 
 function sortBranches(

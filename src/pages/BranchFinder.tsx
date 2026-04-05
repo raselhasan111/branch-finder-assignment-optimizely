@@ -1,5 +1,5 @@
-import { useState, useMemo, useDeferredValue } from 'react';
-import MapPlaceholder from '@/components/branches/MapPlaceholder';
+import { useState, useMemo, useDeferredValue, useRef } from 'react';
+import BranchMap from '@/components/branches/BranchMap';
 import SearchBar from '@/components/branches/SearchBar';
 import CountryFilter from '@/components/branches/CountryFilter';
 import SortSelect from '@/components/branches/SortSelect';
@@ -10,6 +10,7 @@ import Pagination from '@/components/branches/Pagination';
 import BranchListSkeleton from '@/components/branches/BranchListSkeleton';
 import BranchError from '@/components/branches/BranchError';
 import { useBranches } from '@/hooks/use-branches';
+import { useDebounce } from '@/hooks/use-debounce';
 import { useAllBranches, useCountryOptions } from '@/hooks/use-all-branches';
 import { useLocation } from '@/contexts/LocationContext';
 import { filterAndSortBranches } from '@/lib/filter-branches';
@@ -23,12 +24,14 @@ export default function BranchFinder() {
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [sortOption, setSortOption] = useState<SortOption>('relevance');
   const [radius, setRadius] = useState<number | null>(null);
+  const resultsRef = useRef<HTMLElement>(null);
 
   const deferredQuery = useDeferredValue(searchQuery);
+  const debouncedQuery = useDebounce(deferredQuery, 300);
   const { location } = useLocation();
   const { countries, isLoading: isCountriesLoading } = useCountryOptions();
 
-  const hasSearchQuery = deferredQuery.trim().length > 0;
+  const hasSearchQuery = debouncedQuery.trim().length > 0;
 
   // Derive effective sort: auto-select "distance" when geolocated and no explicit choice
   const effectiveSort: SortOption =
@@ -43,7 +46,7 @@ export default function BranchFinder() {
 
   // Server-side search (used when text query is active)
   const serverQuery = useBranches({
-    query: hasSearchQuery ? deferredQuery : undefined,
+    query: hasSearchQuery ? debouncedQuery : undefined,
     limit: hasClientFilters ? 100 : ITEMS_PER_PAGE,
     skip: hasClientFilters ? 0 : (currentPage - 1) * ITEMS_PER_PAGE,
   });
@@ -51,68 +54,65 @@ export default function BranchFinder() {
   // Full dataset (used when client-side filters are active without search)
   const allBranchesQuery = useAllBranches();
 
+  // Destructure stable properties — avoids useMemo recomputing on every render
+  // (useQuery returns a new wrapper object each render, but these properties are stable)
+  const {
+    data: serverData,
+    isPlaceholderData: serverIsPlaceholder,
+    isLoading: serverIsLoading,
+    isError: serverIsError,
+    error: serverError,
+    refetch: serverRefetch,
+  } = serverQuery;
+  const {
+    data: allData,
+    isLoading: allIsLoading,
+    isError: allIsError,
+    error: allError,
+    refetch: allRefetch,
+  } = allBranchesQuery;
+
   // Determine which data source to use and apply client-side filtering
-  const { displayBranches, totalResults, isLoading, isError, error, refetch } =
-    useMemo(() => {
-      // When searching: use server results, optionally post-filter
-      if (hasSearchQuery) {
-        if (!serverQuery.data)
-          return {
-            displayBranches: [],
-            totalResults: 0,
-            isLoading: serverQuery.isLoading,
-            isError: serverQuery.isError,
-            error: serverQuery.error,
-            refetch: serverQuery.refetch,
-          };
-
-        if (!hasClientFilters) {
-          return {
-            displayBranches: serverQuery.data.branches,
-            totalResults: serverQuery.data.total,
-            isLoading: false,
-            isError: false,
-            error: null,
-            refetch: serverQuery.refetch,
-          };
-        }
-
-        const result = filterAndSortBranches(
-          serverQuery.data.branches,
-          {
-            country: selectedCountry,
-            radius,
-            sort: effectiveSort,
-            userLat: location?.latitude ?? null,
-            userLon: location?.longitude ?? null,
-          },
-          currentPage,
-          ITEMS_PER_PAGE,
-        );
-
+  const {
+    displayBranches,
+    mapBranches,
+    totalResults,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    isTruncated,
+  } = useMemo(() => {
+    // When searching: use server results, optionally post-filter
+    if (hasSearchQuery) {
+      // Treat stale placeholder data as loading — don't show previous results
+      if (!serverData || serverIsPlaceholder)
         return {
-          displayBranches: result.branches,
-          totalResults: result.total,
+          displayBranches: [],
+          mapBranches: [],
+          totalResults: 0,
+          isLoading: serverIsLoading || serverIsPlaceholder,
+          isError: serverIsError,
+          error: serverError,
+          refetch: serverRefetch,
+          isTruncated: false,
+        };
+
+      if (!hasClientFilters) {
+        return {
+          displayBranches: serverData.branches,
+          mapBranches: serverData.branches,
+          totalResults: serverData.total,
           isLoading: false,
           isError: false,
           error: null,
-          refetch: serverQuery.refetch,
+          refetch: serverRefetch,
+          isTruncated: false,
         };
       }
 
-      // No search query: use full dataset with client-side filtering
-      if (!allBranchesQuery.data)
-        return {
-          displayBranches: [],
-          totalResults: 0,
-          isLoading: allBranchesQuery.isLoading,
-          isError: allBranchesQuery.isError,
-          error: allBranchesQuery.error,
-          refetch: allBranchesQuery.refetch,
-        };
-
       const result = filterAndSortBranches(
-        allBranchesQuery.data,
+        serverData.branches,
         {
           country: selectedCountry,
           radius,
@@ -126,23 +126,72 @@ export default function BranchFinder() {
 
       return {
         displayBranches: result.branches,
+        mapBranches: result.allFiltered,
         totalResults: result.total,
         isLoading: false,
         isError: false,
         error: null,
-        refetch: allBranchesQuery.refetch,
+        refetch: serverRefetch,
+        isTruncated: hasClientFilters && serverData.total > 100,
       };
-    }, [
-      hasSearchQuery,
-      hasClientFilters,
-      serverQuery,
-      allBranchesQuery,
-      selectedCountry,
-      radius,
-      effectiveSort,
-      location,
+    }
+
+    // No search query: use full dataset with client-side filtering
+    if (!allData)
+      return {
+        displayBranches: [],
+        mapBranches: [],
+        totalResults: 0,
+        isLoading: allIsLoading,
+        isError: allIsError,
+        error: allError,
+        refetch: allRefetch,
+        isTruncated: false,
+      };
+
+    const result = filterAndSortBranches(
+      allData,
+      {
+        country: selectedCountry,
+        radius,
+        sort: effectiveSort,
+        userLat: location?.latitude ?? null,
+        userLon: location?.longitude ?? null,
+      },
       currentPage,
-    ]);
+      ITEMS_PER_PAGE,
+    );
+
+    return {
+      displayBranches: result.branches,
+      mapBranches: result.allFiltered,
+      totalResults: result.total,
+      isLoading: false,
+      isError: false,
+      error: null,
+      refetch: allRefetch,
+      isTruncated: false,
+    };
+  }, [
+    hasSearchQuery,
+    hasClientFilters,
+    serverData,
+    serverIsPlaceholder,
+    serverIsLoading,
+    serverIsError,
+    serverError,
+    serverRefetch,
+    allData,
+    allIsLoading,
+    allIsError,
+    allError,
+    allRefetch,
+    selectedCountry,
+    radius,
+    effectiveSort,
+    location,
+    currentPage,
+  ]);
 
   const totalPages = Math.ceil(totalResults / ITEMS_PER_PAGE);
 
@@ -174,9 +223,9 @@ export default function BranchFinder() {
   };
 
   return (
-    <div className="pt-20">
+    <div>
       {/* Hero Map */}
-      <MapPlaceholder />
+      <BranchMap branches={mapBranches} />
 
       {/* Search */}
       <SearchBar value={searchQuery} onChange={handleSearchChange} />
@@ -190,7 +239,10 @@ export default function BranchFinder() {
       />
 
       {/* Results */}
-      <section className="mx-auto max-w-[1400px] px-[5%] pb-32 pt-16">
+      <section
+        ref={resultsRef}
+        className="mx-auto max-w-[1400px] px-[5%] pb-32 pt-16"
+      >
         {/* Controls row: header + sort/radius */}
         <div className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="flex flex-col lg:max-w-[600px]">
@@ -263,6 +315,17 @@ export default function BranchFinder() {
           />
         </div>
 
+        {/* Truncation warning */}
+        {isTruncated && (
+          <div
+            className="mb-8 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-[0.95rem] text-amber-800"
+            style={{ fontFamily: "'Jost', sans-serif" }}
+          >
+            Showing filtered results from top 100 matches. Try a more specific
+            search for complete results.
+          </div>
+        )}
+
         {/* Loading */}
         {isLoading && <BranchListSkeleton />}
 
@@ -299,7 +362,7 @@ export default function BranchFinder() {
             {hasClientFilters && (
               <button
                 onClick={handleClearAll}
-                className="mt-4 text-[0.95rem] font-medium text-gold underline transition-colors hover:text-midnight"
+                className="mt-4 text-[0.95rem] cursor-pointer font-medium text-gold underline transition-colors hover:text-midnight"
                 style={{ fontFamily: "'Jost', sans-serif" }}
               >
                 Clear all filters
@@ -313,7 +376,10 @@ export default function BranchFinder() {
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
-            onPageChange={setCurrentPage}
+            onPageChange={(page) => {
+              setCurrentPage(page);
+              resultsRef.current?.scrollIntoView({ behavior: 'smooth' });
+            }}
           />
         )}
       </section>

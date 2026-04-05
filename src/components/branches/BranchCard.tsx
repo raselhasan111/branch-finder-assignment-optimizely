@@ -106,30 +106,32 @@ export default function BranchCard({ branch }: BranchCardProps) {
 
         {/* Contact details */}
         {branch.Phone && (
-          <div className="mb-3 flex items-center gap-2 text-slate-brand">
+          <div className="mb-3 flex items-center gap-2">
             <Phone className="h-4 w-4 shrink-0 text-gold" />
-            <span
-              className="text-[0.95rem] font-light"
+            <a
+              href={`tel:${branch.Phone}`}
+              className="text-[0.95rem] font-light text-slate-brand transition-colors duration-200 hover:text-midnight"
               style={{ fontFamily: "'Jost', sans-serif" }}
             >
               {branch.Phone}
-            </span>
+            </a>
           </div>
         )}
         {branch.Email && (
-          <div className="mb-6 flex items-center gap-2 text-slate-brand">
+          <div className="mb-6 flex items-center gap-2">
             <Mail className="h-4 w-4 shrink-0 text-gold" />
-            <span
-              className="text-[0.95rem] font-light"
+            <a
+              href={`mailto:${branch.Email}`}
+              className="text-[0.95rem] font-light text-slate-brand transition-colors duration-200 hover:text-midnight"
               style={{ fontFamily: "'Jost', sans-serif" }}
             >
               {branch.Email}
-            </span>
+            </a>
           </div>
         )}
 
         {/* CTA */}
-        <div className="mt-auto pt-2">
+        <div className="mt-auto flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
           <button
             className="group/cta flex cursor-pointer items-center gap-1 text-[0.95rem] font-medium text-gold transition-colors duration-300 hover:text-midnight"
             style={{ fontFamily: "'Jost', sans-serif" }}
@@ -137,6 +139,19 @@ export default function BranchCard({ branch }: BranchCardProps) {
             Read More
             <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover/cta:translate-x-1" />
           </button>
+
+          {branchLat != null && branchLon != null && (
+            <a
+              href={`https://www.google.com/maps/dir/?api=1&destination=${branchLat},${branchLon}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group/dir flex min-h-[44px] items-center justify-center gap-1.5 rounded-[20px] border border-gold/30 px-4 py-2 text-[0.85rem] font-semibold text-gold transition-all duration-300 hover:border-gold hover:bg-gold hover:text-midnight sm:min-h-0 sm:py-1.5"
+              style={{ fontFamily: "'Jost', sans-serif" }}
+            >
+              <Navigation className="h-3.5 w-3.5" />
+              Get Directions
+            </a>
+          )}
         </div>
       </div>
     </div>
