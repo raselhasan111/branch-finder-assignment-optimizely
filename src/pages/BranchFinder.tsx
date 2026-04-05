@@ -24,6 +24,7 @@ export default function BranchFinder() {
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [sortOption, setSortOption] = useState<SortOption>('relevance');
   const [radius, setRadius] = useState<number | null>(null);
+  const [isSmartSearch, setIsSmartSearch] = useState(false);
   const resultsRef = useRef<HTMLElement>(null);
 
   const deferredQuery = useDeferredValue(searchQuery);
@@ -31,7 +32,7 @@ export default function BranchFinder() {
   const { location } = useLocation();
   const { countries, isLoading: isCountriesLoading } = useCountryOptions();
 
-  const hasSearchQuery = debouncedQuery.trim().length > 0;
+  const hasSearchQuery = debouncedQuery.trim().length >= 2;
 
   // Derive effective sort: auto-select "distance" when geolocated and no explicit choice
   const effectiveSort: SortOption =
@@ -49,6 +50,7 @@ export default function BranchFinder() {
     query: hasSearchQuery ? debouncedQuery : undefined,
     limit: hasClientFilters ? 100 : ITEMS_PER_PAGE,
     skip: hasClientFilters ? 0 : (currentPage - 1) * ITEMS_PER_PAGE,
+    semantic: isSmartSearch,
   });
 
   // Full dataset (used when client-side filters are active without search)
@@ -215,6 +217,11 @@ export default function BranchFinder() {
     setCurrentPage(1);
   };
 
+  const handleSmartSearchToggle = (enabled: boolean) => {
+    setIsSmartSearch(enabled);
+    setCurrentPage(1);
+  };
+
   const handleClearAll = () => {
     setSelectedCountry(null);
     setRadius(null);
@@ -228,7 +235,12 @@ export default function BranchFinder() {
       <BranchMap branches={mapBranches} />
 
       {/* Search */}
-      <SearchBar value={searchQuery} onChange={handleSearchChange} />
+      <SearchBar
+        value={searchQuery}
+        onChange={handleSearchChange}
+        isSmartSearch={isSmartSearch}
+        onSmartSearchChange={handleSmartSearchToggle}
+      />
 
       {/* Country Filter */}
       <CountryFilter
@@ -266,7 +278,7 @@ export default function BranchFinder() {
                 ? 'Searching...'
                 : `${totalResults} Branch${totalResults !== 1 ? 'es' : ''} Found`}
             </h2>
-            {deferredQuery && (
+            {hasSearchQuery && deferredQuery && (
               <p
                 className="mt-2 text-[1rem] font-light tracking-wider text-slate-brand"
                 style={{ fontFamily: "'Jost', sans-serif" }}

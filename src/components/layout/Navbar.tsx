@@ -18,7 +18,7 @@ export default function Navbar() {
       <nav className="flex items-center justify-between px-[5%] py-6">
         {/* Logo */}
         <Link
-          to="/branches"
+          to="/"
           className="font-heading text-[1.8rem] font-bold leading-[1.6] tracking-[-0.5px] text-warm-white no-underline"
         >
           Brightstream

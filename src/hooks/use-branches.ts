@@ -1,6 +1,10 @@
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { graphqlClient } from '@/lib/graphql/client';
-import { SEARCH_BRANCHES, LIST_BRANCHES } from '@/lib/graphql/queries';
+import {
+  SEARCH_BRANCHES,
+  SEMANTIC_SEARCH_BRANCHES,
+  LIST_BRANCHES,
+} from '@/lib/graphql/queries';
 import type {
   BranchQueryResult,
   BranchSearchParams,
@@ -17,9 +21,13 @@ async function fetchBranches(
   const skip = params.skip ?? 0;
   const hasQuery = params.query && params.query.trim().length > 0;
 
+  const searchDocument = params.semantic
+    ? SEMANTIC_SEARCH_BRANCHES
+    : SEARCH_BRANCHES;
+
   const data = hasQuery
     ? await graphqlClient.request<BranchQueryResult>({
-        document: SEARCH_BRANCHES,
+        document: searchDocument,
         variables: { query: params.query!.trim(), limit, skip },
         signal,
       })

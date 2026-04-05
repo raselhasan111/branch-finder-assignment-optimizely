@@ -23,6 +23,7 @@ export interface BranchSearchParams {
   query?: string;
   limit?: number;
   skip?: number;
+  semantic?: boolean;
 }
 
 export interface PaginatedBranches {

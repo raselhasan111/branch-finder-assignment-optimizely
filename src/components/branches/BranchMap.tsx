@@ -408,7 +408,7 @@ function BranchMap({ branches, onMarkerClick }: BranchMapProps) {
 
   if (!isLoaded) {
     return (
-      <div className="relative h-[380px] w-full animate-pulse overflow-hidden bg-cream md:h-[480px] sm:rounded-t-[16px] lg:h-[400px] lg:rounded-t-[25px] xl:h-[480px]">
+      <div className="relative h-[380px] w-full animate-pulse overflow-hidden bg-cream md:h-[480px] sm:rounded-t-[16px] lg:rounded-t-[25px] xl:h-[50vh]">
         <div className="absolute inset-0 flex items-center justify-center">
           <div
             className="text-[0.9rem] font-medium uppercase tracking-[3px] text-sage"
@@ -430,7 +430,7 @@ function BranchMap({ branches, onMarkerClick }: BranchMapProps) {
       className={
         isFullscreen
           ? 'fixed inset-0 z-50 h-screen w-screen'
-          : 'relative h-[380px] w-full overflow-hidden md:h-[480px] sm:rounded-t-[16px] lg:h-[400px] lg:rounded-t-[25px] xl:h-[480px]'
+          : 'relative h-[380px] w-full overflow-hidden md:h-[480px] sm:rounded-t-[16px] lg:rounded-t-[25px] xl:h-[50vh]'
       }
     >
       <GoogleMap
