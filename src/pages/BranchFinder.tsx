@@ -1,4 +1,4 @@
-import { useState, useMemo, useDeferredValue } from 'react';
+import { useState, useMemo, useDeferredValue, useRef } from 'react';
 import BranchMap from '@/components/branches/BranchMap';
 import SearchBar from '@/components/branches/SearchBar';
 import CountryFilter from '@/components/branches/CountryFilter';
@@ -23,6 +23,7 @@ export default function BranchFinder() {
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [sortOption, setSortOption] = useState<SortOption>('relevance');
   const [radius, setRadius] = useState<number | null>(null);
+  const resultsRef = useRef<HTMLElement>(null);
 
   const deferredQuery = useDeferredValue(searchQuery);
   const { location } = useLocation();
@@ -60,6 +61,7 @@ export default function BranchFinder() {
     isError,
     error,
     refetch,
+    isTruncated,
   } = useMemo(() => {
     // When searching: use server results, optionally post-filter
     if (hasSearchQuery) {
@@ -73,6 +75,7 @@ export default function BranchFinder() {
           isError: serverQuery.isError,
           error: serverQuery.error,
           refetch: serverQuery.refetch,
+          isTruncated: false,
         };
 
       if (!hasClientFilters) {
@@ -84,6 +87,7 @@ export default function BranchFinder() {
           isError: false,
           error: null,
           refetch: serverQuery.refetch,
+          isTruncated: false,
         };
       }
 
@@ -108,6 +112,7 @@ export default function BranchFinder() {
         isError: false,
         error: null,
         refetch: serverQuery.refetch,
+        isTruncated: hasClientFilters && serverQuery.data.total > 100,
       };
     }
 
@@ -121,6 +126,7 @@ export default function BranchFinder() {
         isError: allBranchesQuery.isError,
         error: allBranchesQuery.error,
         refetch: allBranchesQuery.refetch,
+        isTruncated: false,
       };
 
     const result = filterAndSortBranches(
@@ -144,6 +150,7 @@ export default function BranchFinder() {
       isError: false,
       error: null,
       refetch: allBranchesQuery.refetch,
+      isTruncated: false,
     };
   }, [
     hasSearchQuery,
@@ -203,7 +210,10 @@ export default function BranchFinder() {
       />
 
       {/* Results */}
-      <section className="mx-auto max-w-[1400px] px-[5%] pb-32 pt-16">
+      <section
+        ref={resultsRef}
+        className="mx-auto max-w-[1400px] px-[5%] pb-32 pt-16"
+      >
         {/* Controls row: header + sort/radius */}
         <div className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="flex flex-col lg:max-w-[600px]">
@@ -276,6 +286,17 @@ export default function BranchFinder() {
           />
         </div>
 
+        {/* Truncation warning */}
+        {isTruncated && (
+          <div
+            className="mb-8 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-[0.95rem] text-amber-800"
+            style={{ fontFamily: "'Jost', sans-serif" }}
+          >
+            Showing filtered results from top 100 matches. Try a more specific
+            search for complete results.
+          </div>
+        )}
+
         {/* Loading */}
         {isLoading && <BranchListSkeleton />}
 
@@ -312,7 +333,7 @@ export default function BranchFinder() {
             {hasClientFilters && (
               <button
                 onClick={handleClearAll}
-                className="mt-4 text-[0.95rem] font-medium text-gold underline transition-colors hover:text-midnight"
+                className="mt-4 text-[0.95rem] cursor-pointer font-medium text-gold underline transition-colors hover:text-midnight"
                 style={{ fontFamily: "'Jost', sans-serif" }}
               >
                 Clear all filters
@@ -326,7 +347,10 @@ export default function BranchFinder() {
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
-            onPageChange={setCurrentPage}
+            onPageChange={(page) => {
+              setCurrentPage(page);
+              resultsRef.current?.scrollIntoView({ behavior: 'smooth' });
+            }}
           />
         )}
       </section>
