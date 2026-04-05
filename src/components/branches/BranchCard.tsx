@@ -106,25 +106,27 @@ export default function BranchCard({ branch }: BranchCardProps) {
 
         {/* Contact details */}
         {branch.Phone && (
-          <div className="mb-3 flex items-center gap-2 text-slate-brand">
+          <div className="mb-3 flex items-center gap-2">
             <Phone className="h-4 w-4 shrink-0 text-gold" />
-            <span
-              className="text-[0.95rem] font-light"
+            <a
+              href={`tel:${branch.Phone}`}
+              className="text-[0.95rem] font-light text-slate-brand transition-colors duration-200 hover:text-midnight"
               style={{ fontFamily: "'Jost', sans-serif" }}
             >
               {branch.Phone}
-            </span>
+            </a>
           </div>
         )}
         {branch.Email && (
-          <div className="mb-6 flex items-center gap-2 text-slate-brand">
+          <div className="mb-6 flex items-center gap-2">
             <Mail className="h-4 w-4 shrink-0 text-gold" />
-            <span
-              className="text-[0.95rem] font-light"
+            <a
+              href={`mailto:${branch.Email}`}
+              className="text-[0.95rem] font-light text-slate-brand transition-colors duration-200 hover:text-midnight"
               style={{ fontFamily: "'Jost', sans-serif" }}
             >
               {branch.Email}
-            </span>
+            </a>
           </div>
         )}
 

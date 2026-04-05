@@ -54,6 +54,24 @@ export default function BranchFinder() {
   // Full dataset (used when client-side filters are active without search)
   const allBranchesQuery = useAllBranches();
 
+  // Destructure stable properties — avoids useMemo recomputing on every render
+  // (useQuery returns a new wrapper object each render, but these properties are stable)
+  const {
+    data: serverData,
+    isPlaceholderData: serverIsPlaceholder,
+    isLoading: serverIsLoading,
+    isError: serverIsError,
+    error: serverError,
+    refetch: serverRefetch,
+  } = serverQuery;
+  const {
+    data: allData,
+    isLoading: allIsLoading,
+    isError: allIsError,
+    error: allError,
+    refetch: allRefetch,
+  } = allBranchesQuery;
+
   // Determine which data source to use and apply client-side filtering
   const {
     displayBranches,
@@ -68,33 +86,33 @@ export default function BranchFinder() {
     // When searching: use server results, optionally post-filter
     if (hasSearchQuery) {
       // Treat stale placeholder data as loading — don't show previous results
-      if (!serverQuery.data || serverQuery.isPlaceholderData)
+      if (!serverData || serverIsPlaceholder)
         return {
           displayBranches: [],
           mapBranches: [],
           totalResults: 0,
-          isLoading: serverQuery.isLoading || serverQuery.isPlaceholderData,
-          isError: serverQuery.isError,
-          error: serverQuery.error,
-          refetch: serverQuery.refetch,
+          isLoading: serverIsLoading || serverIsPlaceholder,
+          isError: serverIsError,
+          error: serverError,
+          refetch: serverRefetch,
           isTruncated: false,
         };
 
       if (!hasClientFilters) {
         return {
-          displayBranches: serverQuery.data.branches,
-          mapBranches: serverQuery.data.branches,
-          totalResults: serverQuery.data.total,
+          displayBranches: serverData.branches,
+          mapBranches: serverData.branches,
+          totalResults: serverData.total,
           isLoading: false,
           isError: false,
           error: null,
-          refetch: serverQuery.refetch,
+          refetch: serverRefetch,
           isTruncated: false,
         };
       }
 
       const result = filterAndSortBranches(
-        serverQuery.data.branches,
+        serverData.branches,
         {
           country: selectedCountry,
           radius,
@@ -113,26 +131,26 @@ export default function BranchFinder() {
         isLoading: false,
         isError: false,
         error: null,
-        refetch: serverQuery.refetch,
-        isTruncated: hasClientFilters && serverQuery.data.total > 100,
+        refetch: serverRefetch,
+        isTruncated: hasClientFilters && serverData.total > 100,
       };
     }
 
     // No search query: use full dataset with client-side filtering
-    if (!allBranchesQuery.data)
+    if (!allData)
       return {
         displayBranches: [],
         mapBranches: [],
         totalResults: 0,
-        isLoading: allBranchesQuery.isLoading,
-        isError: allBranchesQuery.isError,
-        error: allBranchesQuery.error,
-        refetch: allBranchesQuery.refetch,
+        isLoading: allIsLoading,
+        isError: allIsError,
+        error: allError,
+        refetch: allRefetch,
         isTruncated: false,
       };
 
     const result = filterAndSortBranches(
-      allBranchesQuery.data,
+      allData,
       {
         country: selectedCountry,
         radius,
@@ -151,14 +169,23 @@ export default function BranchFinder() {
       isLoading: false,
       isError: false,
       error: null,
-      refetch: allBranchesQuery.refetch,
+      refetch: allRefetch,
       isTruncated: false,
     };
   }, [
     hasSearchQuery,
     hasClientFilters,
-    serverQuery,
-    allBranchesQuery,
+    serverData,
+    serverIsPlaceholder,
+    serverIsLoading,
+    serverIsError,
+    serverError,
+    serverRefetch,
+    allData,
+    allIsLoading,
+    allIsError,
+    allError,
+    allRefetch,
     selectedCountry,
     radius,
     effectiveSort,
