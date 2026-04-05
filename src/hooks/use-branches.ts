@@ -11,20 +11,22 @@ const DEFAULT_LIMIT = 12;
 
 async function fetchBranches(
   params: BranchSearchParams,
+  signal?: AbortSignal,
 ): Promise<PaginatedBranches> {
   const limit = params.limit ?? DEFAULT_LIMIT;
   const skip = params.skip ?? 0;
   const hasQuery = params.query && params.query.trim().length > 0;
 
   const data = hasQuery
-    ? await graphqlClient.request<BranchQueryResult>(SEARCH_BRANCHES, {
-        query: params.query!.trim(),
-        limit,
-        skip,
+    ? await graphqlClient.request<BranchQueryResult>({
+        document: SEARCH_BRANCHES,
+        variables: { query: params.query!.trim(), limit, skip },
+        signal,
       })
-    : await graphqlClient.request<BranchQueryResult>(LIST_BRANCHES, {
-        limit,
-        skip,
+    : await graphqlClient.request<BranchQueryResult>({
+        document: LIST_BRANCHES,
+        variables: { limit, skip },
+        signal,
       });
 
   return {
@@ -36,7 +38,7 @@ async function fetchBranches(
 export function useBranches(params: BranchSearchParams) {
   return useQuery({
     queryKey: ['branches', params],
-    queryFn: () => fetchBranches(params),
+    queryFn: ({ signal }) => fetchBranches(params, signal),
     placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,

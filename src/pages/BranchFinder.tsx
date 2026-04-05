@@ -10,6 +10,7 @@ import Pagination from '@/components/branches/Pagination';
 import BranchListSkeleton from '@/components/branches/BranchListSkeleton';
 import BranchError from '@/components/branches/BranchError';
 import { useBranches } from '@/hooks/use-branches';
+import { useDebounce } from '@/hooks/use-debounce';
 import { useAllBranches, useCountryOptions } from '@/hooks/use-all-branches';
 import { useLocation } from '@/contexts/LocationContext';
 import { filterAndSortBranches } from '@/lib/filter-branches';
@@ -26,10 +27,11 @@ export default function BranchFinder() {
   const resultsRef = useRef<HTMLElement>(null);
 
   const deferredQuery = useDeferredValue(searchQuery);
+  const debouncedQuery = useDebounce(deferredQuery, 300);
   const { location } = useLocation();
   const { countries, isLoading: isCountriesLoading } = useCountryOptions();
 
-  const hasSearchQuery = deferredQuery.trim().length > 0;
+  const hasSearchQuery = debouncedQuery.trim().length > 0;
 
   // Derive effective sort: auto-select "distance" when geolocated and no explicit choice
   const effectiveSort: SortOption =
@@ -44,7 +46,7 @@ export default function BranchFinder() {
 
   // Server-side search (used when text query is active)
   const serverQuery = useBranches({
-    query: hasSearchQuery ? deferredQuery : undefined,
+    query: hasSearchQuery ? debouncedQuery : undefined,
     limit: hasClientFilters ? 100 : ITEMS_PER_PAGE,
     skip: hasClientFilters ? 0 : (currentPage - 1) * ITEMS_PER_PAGE,
   });
