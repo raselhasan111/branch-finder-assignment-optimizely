@@ -5,7 +5,18 @@ import {
   OverlayViewF,
 } from '@react-google-maps/api';
 import { MarkerClusterer } from '@googlemaps/markerclusterer';
-import { MapPin, Phone, Mail, Navigation, LocateFixed, X } from 'lucide-react';
+import {
+  MapPin,
+  Phone,
+  Mail,
+  Navigation,
+  LocateFixed,
+  X,
+  Maximize,
+  Minimize,
+  Plus,
+  Minus,
+} from 'lucide-react';
 import type { Branch } from '@/types/branch';
 import { parseCoordinates } from '@/types/branch';
 import { useLocation } from '@/contexts/LocationContext';
@@ -88,6 +99,7 @@ function getDirectionsUrl(lat: number, lng: number): string {
 
 function BranchMap({ branches, onMarkerClick }: BranchMapProps) {
   const { location: userLocation } = useLocation();
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [selectedBranch, setSelectedBranch] = useState<Branch | null>(null);
   const [hoveredCluster, setHoveredCluster] = useState<{
     position: google.maps.LatLngLiteral;
@@ -107,6 +119,26 @@ function BranchMap({ branches, onMarkerClick }: BranchMapProps) {
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: apiKey,
   });
+
+  // Exit fullscreen on Escape key
+  useEffect(() => {
+    if (!isFullscreen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsFullscreen(false);
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isFullscreen]);
+
+  // Trigger map resize when fullscreen changes
+  useEffect(() => {
+    if (!map) return;
+    // Small delay to let the container resize first
+    const timer = setTimeout(() => {
+      google.maps.event.trigger(map, 'resize');
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [map, isFullscreen]);
 
   // Parse coordinates for all branches once
   const branchesWithCoords = useMemo(
@@ -359,10 +391,7 @@ function BranchMap({ branches, onMarkerClick }: BranchMapProps) {
         ? {
             styles: MAP_STYLES,
             disableDefaultUI: true,
-            zoomControl: true,
-            zoomControlOptions: {
-              position: google.maps.ControlPosition.RIGHT_BOTTOM,
-            },
+            zoomControl: false,
             gestureHandling: window.innerWidth < 640 ? 'cooperative' : 'greedy',
             minZoom: 2,
             maxZoom: 18,
@@ -397,17 +426,13 @@ function BranchMap({ branches, onMarkerClick }: BranchMapProps) {
     : [null, null];
 
   return (
-    <div className="relative h-[380px] w-full overflow-hidden md:h-[480px] sm:rounded-t-[16px] lg:h-[400px] lg:rounded-t-[25px] xl:h-[480px]">
-      {/* My Location button — above zoom controls */}
-      {userLocation && (
-        <button
-          onClick={handleMyLocation}
-          title="Go to my location"
-          className="absolute bottom-[120px] right-[10px] z-10 flex h-[40px] w-[40px] cursor-pointer items-center justify-center rounded-sm border-0 bg-white shadow-[0_1px_4px_rgba(0,0,0,0.3)] transition-colors hover:bg-gray-100"
-        >
-          <LocateFixed className="h-5 w-5 text-[#666]" />
-        </button>
-      )}
+    <div
+      className={
+        isFullscreen
+          ? 'fixed inset-0 z-50 h-screen w-screen'
+          : 'relative h-[380px] w-full overflow-hidden md:h-[480px] sm:rounded-t-[16px] lg:h-[400px] lg:rounded-t-[25px] xl:h-[480px]'
+      }
+    >
       <GoogleMap
         mapContainerStyle={{ width: '100%', height: '100%' }}
         center={DEFAULT_CENTER}
@@ -481,7 +506,7 @@ function BranchMap({ branches, onMarkerClick }: BranchMapProps) {
                   boxShadow:
                     '0 4px 20px rgba(10, 22, 40, 0.12), 0 1px 4px rgba(10, 22, 40, 0.08)',
                   minWidth: '210px',
-                  maxWidth: '270px',
+                  width: 'max-content',
                   border: '1px solid rgba(212, 175, 55, 0.15)',
                 }}
               >
@@ -693,6 +718,46 @@ function BranchMap({ branches, onMarkerClick }: BranchMapProps) {
             </OverlayViewF>
           )}
       </GoogleMap>
+      {/* Map controls — bottom right, rendered after GoogleMap to stay on top */}
+      <div className="absolute bottom-14 right-4 z-1000 flex flex-col gap-[8px] sm:bottom-5">
+        {userLocation && (
+          <button
+            onClick={handleMyLocation}
+            title="Go to my location"
+            className="flex h-[40px] w-[40px] cursor-pointer items-center justify-center rounded-sm border-0 bg-white shadow-[0_1px_4px_rgba(0,0,0,0.3)] transition-colors hover:bg-gray-100"
+          >
+            <LocateFixed className="h-5 w-5 text-[#666]" />
+          </button>
+        )}
+        <button
+          onClick={() => setIsFullscreen((prev) => !prev)}
+          title={isFullscreen ? 'Exit fullscreen (Esc)' : 'Fullscreen'}
+          className="flex h-[40px] w-[40px] cursor-pointer items-center justify-center rounded-sm border-0 bg-white shadow-[0_1px_4px_rgba(0,0,0,0.3)] transition-colors hover:bg-gray-100"
+        >
+          {isFullscreen ? (
+            <Minimize className="h-5 w-5 text-[#666]" />
+          ) : (
+            <Maximize className="h-5 w-5 text-[#666]" />
+          )}
+        </button>
+        <div className="flex flex-col overflow-hidden rounded-sm shadow-[0_1px_4px_rgba(0,0,0,0.3)]">
+          <button
+            onClick={() => map?.setZoom((map.getZoom() ?? 2) + 1)}
+            title="Zoom in"
+            className="flex h-[40px] w-[40px] cursor-pointer items-center justify-center border-0 bg-white transition-colors hover:bg-gray-100"
+          >
+            <Plus className="h-[18px] w-[18px] text-[#666]" />
+          </button>
+          <div className="h-px bg-[#e6e6e6]" />
+          <button
+            onClick={() => map?.setZoom((map.getZoom() ?? 2) - 1)}
+            title="Zoom out"
+            className="flex h-[40px] w-[40px] cursor-pointer items-center justify-center border-0 bg-white transition-colors hover:bg-gray-100"
+          >
+            <Minus className="h-[18px] w-[18px] text-[#666]" />
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
