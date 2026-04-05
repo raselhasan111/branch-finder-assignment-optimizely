@@ -6,7 +6,6 @@ import {
   createRootRoute,
   RouterProvider,
   Outlet,
-  Navigate,
 } from '@tanstack/react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -14,6 +13,7 @@ import './index.css';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import BranchFinder from '@/pages/BranchFinder';
+import NotFound from '@/pages/NotFound';
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -25,21 +25,16 @@ const rootRoute = createRootRoute({
       <Footer />
     </div>
   ),
+  notFoundComponent: NotFound,
 });
 
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
-  component: () => <Navigate to="/branches" />,
-});
-
-const branchesRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/branches',
   component: BranchFinder,
 });
 
-const routeTree = rootRoute.addChildren([indexRoute, branchesRoute]);
+const routeTree = rootRoute.addChildren([indexRoute]);
 
 const router = createRouter({ routeTree });
 
