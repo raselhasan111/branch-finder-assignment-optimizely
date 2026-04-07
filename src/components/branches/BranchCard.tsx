@@ -1,4 +1,11 @@
-import { MapPin, Phone, Mail, ArrowRight, Navigation } from 'lucide-react';
+import {
+  MapPin,
+  Phone,
+  Mail,
+  ArrowRight,
+  Navigation,
+  Star,
+} from 'lucide-react';
 import type { Branch } from '@/types/branch';
 import { parseCoordinates } from '@/types/branch';
 import { useLocation } from '@/contexts/LocationContext';
@@ -6,6 +13,7 @@ import { calculateDistance } from '@/lib/utils';
 
 interface BranchCardProps {
   branch: Branch;
+  isClosest?: boolean;
 }
 
 function formatDistance(km: number): string {
@@ -14,7 +22,7 @@ function formatDistance(km: number): string {
   return `${Math.round(km)} km`;
 }
 
-export default function BranchCard({ branch }: BranchCardProps) {
+export default function BranchCard({ branch, isClosest }: BranchCardProps) {
   const { location } = useLocation();
   const [branchLat, branchLon] = parseCoordinates(branch.Coordinates);
 
@@ -44,8 +52,8 @@ export default function BranchCard({ branch }: BranchCardProps) {
         className="relative h-[180px] w-full"
         style={{ background: 'linear-gradient(135deg, #1a2942, #0d4d56)' }}
       >
-        {/* Top-left badge: distance when available, country as fallback */}
-        <div className="absolute left-6 top-6">
+        {/* Top-left badges: distance + closest */}
+        <div className="absolute left-6 top-6 flex flex-wrap items-center gap-2">
           {distance != null ? (
             <div
               className="flex items-center gap-1.5 rounded-[20px] px-[1.2rem] py-2 text-[0.85rem] font-semibold uppercase"
@@ -71,6 +79,19 @@ export default function BranchCard({ branch }: BranchCardProps) {
                 {branch.CountryCode}
               </div>
             )
+          )}
+          {isClosest && (
+            <div
+              className="flex items-center gap-1.5 rounded-[20px] px-[1.2rem] py-2 text-[0.85rem] font-semibold"
+              style={{
+                fontFamily: "'Jost', sans-serif",
+                background: '#fefdfb',
+                color: '#0a1628',
+              }}
+            >
+              <Star className="h-3.5 w-3.5 fill-gold text-gold" />
+              Closest to you
+            </div>
           )}
         </div>
       </div>

@@ -1,20 +1,32 @@
 import { gql } from 'graphql-request';
 
-const BRANCH_FIELDS = `
-  _id
-  _score
-  Name
-  Street
-  City
-  Country
-  CountryCode
-  ZipCode
-  Coordinates
-  Phone
-  Email
+// Fields needed for display, filtering, and map — no _score (meaningless without ranking)
+const BRANCH_CORE_FIELDS = gql`
+  fragment BranchCoreFields on Branch {
+    _id
+    Name
+    Street
+    City
+    Country
+    CountryCode
+    ZipCode
+    Coordinates
+    Phone
+    Email
+  }
+`;
+
+// Search queries additionally surface _score for RELEVANCE/SEMANTIC ordering
+const BRANCH_SEARCH_FIELDS = gql`
+  fragment BranchSearchFields on Branch {
+    ...BranchCoreFields
+    _score
+  }
+  ${BRANCH_CORE_FIELDS}
 `;
 
 export const SEARCH_BRANCHES = gql`
+  ${BRANCH_SEARCH_FIELDS}
   query SearchBranches($query: String!, $limit: Int!, $skip: Int!) {
     Branch(
       where: { _fulltext: { match: $query, fuzzy: true } }
@@ -23,7 +35,7 @@ export const SEARCH_BRANCHES = gql`
       orderBy: { _ranking: RELEVANCE }
     ) {
       items {
-        ${BRANCH_FIELDS}
+        ...BranchSearchFields
       }
       total
     }
@@ -31,6 +43,7 @@ export const SEARCH_BRANCHES = gql`
 `;
 
 export const SEMANTIC_SEARCH_BRANCHES = gql`
+  ${BRANCH_SEARCH_FIELDS}
   query SemanticSearchBranches($query: String!, $limit: Int!, $skip: Int!) {
     Branch(
       where: { _fulltext: { match: $query } }
@@ -39,29 +52,20 @@ export const SEMANTIC_SEARCH_BRANCHES = gql`
       orderBy: { _ranking: SEMANTIC }
     ) {
       items {
-        ${BRANCH_FIELDS}
+        ...BranchSearchFields
       }
       total
     }
   }
 `;
 
+// Single paginated list query — used for both page-by-page display and full-dataset batch fetch
 export const LIST_BRANCHES = gql`
+  ${BRANCH_CORE_FIELDS}
   query ListBranches($limit: Int!, $skip: Int!) {
     Branch(limit: $limit, skip: $skip) {
       items {
-        ${BRANCH_FIELDS}
-      }
-      total
-    }
-  }
-`;
-
-export const LIST_ALL_BRANCHES = gql`
-  query ListAllBranches($limit: Int!, $skip: Int!) {
-    Branch(limit: $limit, skip: $skip) {
-      items {
-        ${BRANCH_FIELDS}
+        ...BranchCoreFields
       }
       total
     }

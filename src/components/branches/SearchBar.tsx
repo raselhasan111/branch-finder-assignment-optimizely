@@ -1,6 +1,7 @@
 import { useRef, useEffect } from 'react';
 import { Search, X } from 'lucide-react';
 import SmartSearchToggle from '@/components/branches/SmartSearchToggle';
+import { useIsMobile } from '@/hooks/use-is-mobile';
 
 interface SearchBarProps {
   value: string;
@@ -16,6 +17,10 @@ export default function SearchBar({
   onSmartSearchChange,
 }: SearchBarProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const isMobile = useIsMobile();
+  const placeholder = isMobile
+    ? 'Branch name or city'
+    : 'Search by branch name or city';
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -31,10 +36,10 @@ export default function SearchBar({
         <input
           ref={inputRef}
           type="text"
-          placeholder="Search by branch name or city"
+          placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="h-full w-full flex-1 border-none bg-transparent text-[1rem] font-normal text-midnight placeholder:text-slate-brand focus:outline-none"
+          className="h-full w-full flex-1 truncate border-none bg-transparent text-[1rem] font-normal text-midnight placeholder:text-slate-brand focus:outline-none"
           style={{ fontFamily: "'Jost', sans-serif" }}
         />
         {/* Clear button */}

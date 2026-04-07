@@ -12,18 +12,18 @@ export default function SmartSearchToggle({
 }: SmartSearchToggleProps) {
   return (
     <div
-      className="flex items-center gap-2"
+      className="flex items-center gap-1 sm:gap-2"
       title="Semantic Search"
       style={{ fontFamily: "'Jost', sans-serif" }}
     >
       <label
         htmlFor="smart-search"
-        className="flex cursor-pointer items-center gap-1.5 text-[0.95rem] font-medium text-midnight"
+        className="flex cursor-pointer items-center gap-1 sm:gap-1.5 text-[0.95rem] font-medium text-midnight"
       >
         <Sparkles
           className={`h-4 w-4 transition-colors duration-300 ${enabled ? 'text-gold' : 'text-slate-brand'}`}
         />
-        Smart Search
+        <span className="hidden sm:inline">Smart Search</span>
       </label>
       <Switch
         id="smart-search"

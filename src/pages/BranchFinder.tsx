@@ -354,8 +354,16 @@ export default function BranchFinder() {
               gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
             }}
           >
-            {displayBranches.map((branch) => (
-              <BranchCard key={branch._id} branch={branch} />
+            {displayBranches.map((branch, index) => (
+              <BranchCard
+                key={branch._id}
+                branch={branch}
+                isClosest={
+                  index === 0 &&
+                  currentPage === 1 &&
+                  effectiveSort === 'distance'
+                }
+              />
             ))}
           </div>
         )}

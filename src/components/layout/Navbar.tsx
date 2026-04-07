@@ -14,7 +14,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="animate-slide-down fixed top-0 z-50 w-full">
+    <header className="animate-slide-down fixed top-0 z-1100 w-full">
       <nav className="flex items-center justify-between px-[5%] py-6">
         {/* Logo */}
         <Link
