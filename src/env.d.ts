@@ -2,7 +2,7 @@
 
 interface ImportMetaEnv {
   readonly VITE_GRAPH_ENDPOINT: string;
-  readonly VITE_GRAPH_AUTH: string;
+  readonly VITE_GRAPH_AUTH_KEY: string;
 }
 
 interface ImportMeta {
