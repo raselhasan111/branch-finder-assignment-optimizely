@@ -2,7 +2,7 @@
 
 A location-aware branch finder for Brightstream Bank, powered by Optimizely Graph and Google Maps.
 
-**[Live Demo](https://branch-finder-optimizely-rasel-hasa.vercel.app/)** — `https://branch-finder-optimizely-rasel-hasa.vercel.app`
+**[Live Demo](https://branch-finder-optimizely-rasel-hasan.vercel.app/)** — `https://branch-finder-optimizely-rasel-hasan.vercel.app`
 
 ![App Screenshot](public/App_Screenshot.png)
 
