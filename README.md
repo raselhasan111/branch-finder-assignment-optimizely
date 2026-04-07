@@ -6,8 +6,6 @@ A location-aware branch finder for Brightstream Bank, powered by Optimizely Grap
 
 ![App Screenshot](public/App_Screenshot.png)
 
----
-
 ## Quick Start
 
 **Prerequisites:** Node 18+, pnpm

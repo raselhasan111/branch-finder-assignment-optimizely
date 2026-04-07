@@ -15,6 +15,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import BranchFinder from '@/pages/BranchFinder';
 import NotFound from '@/pages/NotFound';
+import ErrorPage from '@/pages/ErrorPage';
 import { z } from 'zod';
 import { zodValidator } from '@tanstack/zod-adapter';
 
@@ -38,6 +39,7 @@ const rootRoute = createRootRoute({
     </div>
   ),
   notFoundComponent: NotFound,
+  errorComponent: ({ error }) => <ErrorPage error={error} />,
 });
 
 const searchDefaults = {
