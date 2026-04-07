@@ -20,6 +20,7 @@ pnpm dev               # opens at http://localhost:5173
 
 **Environment variables** (`.env`):
 
+- `VITE_GRAPH_ENDPOINT` — Optimizely Graph API endpoint
 - `VITE_GRAPH_AUTH_KEY` — Optimizely Graph single-key auth token
 - `VITE_GOOGLE_MAPS_API_KEY` — Google Maps JavaScript API key
 
