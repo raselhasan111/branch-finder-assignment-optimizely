@@ -1,4 +1,5 @@
-import { useState, useMemo, useDeferredValue, useRef } from 'react';
+import { useMemo, useDeferredValue, useRef } from 'react';
+import { useSearch, useNavigate } from '@tanstack/react-router';
 import BranchMap from '@/components/branches/BranchMap';
 import SearchBar from '@/components/branches/SearchBar';
 import CountryFilter from '@/components/branches/CountryFilter';
@@ -19,15 +20,18 @@ import type { SortOption } from '@/types/branch';
 const ITEMS_PER_PAGE = 12;
 
 export default function BranchFinder() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
-  const [sortOption, setSortOption] = useState<SortOption>('relevance');
-  const [radius, setRadius] = useState<number | null>(null);
-  const [isSmartSearch, setIsSmartSearch] = useState(false);
+  const {
+    q,
+    page: currentPage,
+    country: selectedCountry,
+    sort: sortOption,
+    radius,
+    smart: isSmartSearch,
+  } = useSearch({ from: '/' });
+  const navigate = useNavigate({ from: '/' });
   const resultsRef = useRef<HTMLElement>(null);
 
-  const deferredQuery = useDeferredValue(searchQuery);
+  const deferredQuery = useDeferredValue(q);
   const debouncedQuery = useDebounce(deferredQuery, 300);
   const { location } = useLocation();
   const { countries, isLoading: isCountriesLoading } = useCountryOptions();
@@ -41,8 +45,8 @@ export default function BranchFinder() {
       : sortOption;
 
   const hasClientFilters =
-    selectedCountry !== null ||
-    radius !== null ||
+    selectedCountry !== undefined ||
+    radius !== undefined ||
     effectiveSort !== 'relevance';
 
   // Server-side search (used when text query is active)
@@ -116,8 +120,8 @@ export default function BranchFinder() {
       const result = filterAndSortBranches(
         serverData.branches,
         {
-          country: selectedCountry,
-          radius,
+          country: selectedCountry ?? null,
+          radius: radius ?? null,
           sort: effectiveSort,
           userLat: location?.latitude ?? null,
           userLon: location?.longitude ?? null,
@@ -154,8 +158,8 @@ export default function BranchFinder() {
     const result = filterAndSortBranches(
       allData,
       {
-        country: selectedCountry,
-        radius,
+        country: selectedCountry ?? null,
+        radius: radius ?? null,
         sort: effectiveSort,
         userLat: location?.latitude ?? null,
         userLon: location?.longitude ?? null,
@@ -198,35 +202,51 @@ export default function BranchFinder() {
   const totalPages = Math.ceil(totalResults / ITEMS_PER_PAGE);
 
   const handleSearchChange = (value: string) => {
-    setSearchQuery(value);
-    setCurrentPage(1);
+    void navigate({
+      search: (prev) => ({ ...prev, q: value, page: 1 }),
+      replace: true,
+    });
   };
 
   const handleCountrySelect = (code: string | null) => {
-    setSelectedCountry(code);
-    setCurrentPage(1);
+    void navigate({
+      search: (prev) => ({ ...prev, country: code ?? undefined, page: 1 }),
+      replace: true,
+    });
   };
 
   const handleSortChange = (sort: SortOption) => {
-    setSortOption(sort);
-    setCurrentPage(1);
+    void navigate({
+      search: (prev) => ({ ...prev, sort, page: 1 }),
+      replace: true,
+    });
   };
 
   const handleRadiusChange = (r: number | null) => {
-    setRadius(r);
-    setCurrentPage(1);
+    void navigate({
+      search: (prev) => ({ ...prev, radius: r ?? undefined, page: 1 }),
+      replace: true,
+    });
   };
 
   const handleSmartSearchToggle = (enabled: boolean) => {
-    setIsSmartSearch(enabled);
-    setCurrentPage(1);
+    void navigate({
+      search: (prev) => ({ ...prev, smart: enabled, page: 1 }),
+      replace: true,
+    });
   };
 
   const handleClearAll = () => {
-    setSelectedCountry(null);
-    setRadius(null);
-    setSortOption('relevance');
-    setCurrentPage(1);
+    void navigate({
+      search: (prev) => ({
+        ...prev,
+        country: undefined,
+        radius: undefined,
+        sort: 'relevance' as SortOption,
+        page: 1,
+      }),
+      replace: true,
+    });
   };
 
   return (
@@ -236,7 +256,7 @@ export default function BranchFinder() {
 
       {/* Search */}
       <SearchBar
-        value={searchQuery}
+        value={q}
         onChange={handleSearchChange}
         isSmartSearch={isSmartSearch}
         onSmartSearchChange={handleSmartSearchToggle}
@@ -245,7 +265,7 @@ export default function BranchFinder() {
       {/* Country Filter */}
       <CountryFilter
         countries={countries}
-        selected={selectedCountry}
+        selected={selectedCountry ?? null}
         isLoading={isCountriesLoading}
         onSelect={handleCountrySelect}
       />
@@ -297,7 +317,10 @@ export default function BranchFinder() {
               hasSearchQuery={hasSearchQuery}
             />
             {location && (
-              <DistanceRadius value={radius} onChange={handleRadiusChange} />
+              <DistanceRadius
+                value={radius ?? null}
+                onChange={handleRadiusChange}
+              />
             )}
           </div>
         </div>
@@ -305,9 +328,9 @@ export default function BranchFinder() {
         {/* Active filters bar */}
         <div className="mb-8">
           <ActiveFilters
-            selectedCountry={selectedCountry}
+            selectedCountry={selectedCountry ?? null}
             countries={countries}
-            radius={radius}
+            radius={radius ?? null}
             sort={effectiveSort}
             defaultSort={
               hasSearchQuery ? 'relevance' : location ? 'distance' : 'relevance'
@@ -397,7 +420,10 @@ export default function BranchFinder() {
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={(page) => {
-              setCurrentPage(page);
+              void navigate({
+                search: (prev) => ({ ...prev, page }),
+                replace: true,
+              });
               resultsRef.current?.scrollIntoView({ behavior: 'smooth' });
             }}
           />
