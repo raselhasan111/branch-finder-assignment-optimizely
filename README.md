@@ -2,17 +2,17 @@
 
 A location-aware branch finder for Brightstream Bank, powered by Optimizely Graph and Google Maps.
 
-**[Live Demo](https://branch-finder-optimizely-rasel-hasa.vercel.app/)** — `https://branch-finder-optimizely-rasel-hasa.vercel.app`
+**[Live Demo](https://branch-finder-optimizely-rasel-hasan.vercel.app/)** — `https://branch-finder-optimizely-rasel-hasan.vercel.app`
 
----
+![App Screenshot](public/App_Screenshot.png)
 
 ## Quick Start
 
 **Prerequisites:** Node 18+, pnpm
 
 ```bash
-git clone https://github.com/raselhasan111/brightstream-branch-finder.git
-cd brightstream-branch-finder
+git clone https://github.com/raselhasan111/branch-finder-assignment-optimizely.git
+cd branch-finder-assignment-optimizely
 pnpm install
 cp .env.example .env   # then fill in your API keys
 pnpm dev               # opens at http://localhost:5173
@@ -20,7 +20,7 @@ pnpm dev               # opens at http://localhost:5173
 
 **Environment variables** (`.env`):
 
-- `VITE_GRAPH_AUTH` — Optimizely Graph single-key auth token
+- `VITE_GRAPH_AUTH_KEY` — Optimizely Graph single-key auth token
 - `VITE_GOOGLE_MAPS_API_KEY` — Google Maps JavaScript API key
 
 Other scripts: `pnpm build`, `pnpm lint`, `pnpm format`
