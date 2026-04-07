@@ -429,7 +429,7 @@ function BranchMap({ branches, onMarkerClick }: BranchMapProps) {
     <div
       className={
         isFullscreen
-          ? 'fixed inset-0 z-50 h-screen w-screen'
+          ? 'fixed inset-0 z-1200 h-screen w-screen'
           : 'relative h-[380px] w-full overflow-hidden md:h-[480px] sm:rounded-t-[16px] lg:rounded-t-[25px] xl:h-[50vh]'
       }
     >
