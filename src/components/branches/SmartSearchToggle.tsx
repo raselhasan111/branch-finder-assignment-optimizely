@@ -11,11 +11,7 @@ export default function SmartSearchToggle({
   onChange,
 }: SmartSearchToggleProps) {
   return (
-    <div
-      className="flex items-center gap-1 sm:gap-2"
-      title="Semantic Search"
-      style={{ fontFamily: "'Jost', sans-serif" }}
-    >
+    <div className="flex items-center gap-1 sm:gap-2" title="Semantic Search">
       <label
         htmlFor="smart-search"
         className="flex cursor-pointer items-center gap-1 sm:gap-1.5 text-[0.95rem] font-medium text-midnight"

@@ -1,11 +1,7 @@
 import { X } from 'lucide-react';
 import type { CountryOption, SortOption } from '@/types/branch';
 
-const SORT_LABELS: Record<SortOption, string> = {
-  relevance: 'Relevance',
-  distance: 'Nearest First',
-  name: 'Name A\u2013Z',
-};
+import { SORT_LABELS } from '@/constants/ui';
 
 interface ActiveFiltersProps {
   selectedCountry: string | null;
@@ -17,6 +13,24 @@ interface ActiveFiltersProps {
   onClearRadius: () => void;
   onClearSort: () => void;
   onClearAll: () => void;
+}
+
+function FilterPill({
+  label,
+  onClear,
+}: {
+  label: string;
+  onClear: () => void;
+}) {
+  return (
+    <button
+      onClick={onClear}
+      className="flex cursor-pointer items-center gap-1.5 rounded-[20px] bg-midnight px-3 py-1.5 text-[0.8rem] font-medium text-warm-white transition-colors duration-200 hover:bg-red-600"
+    >
+      {label}
+      <X className="h-3 w-3" />
+    </button>
+  );
 }
 
 export default function ActiveFilters({
@@ -40,42 +54,21 @@ export default function ActiveFilters({
   )?.country;
 
   return (
-    <div
-      className="flex flex-wrap items-center gap-2"
-      style={{ fontFamily: "'Jost', sans-serif" }}
-    >
+    <div className="flex flex-wrap items-center gap-2">
       <span className="text-[0.85rem] font-medium text-slate-brand">
         Active filters:
       </span>
 
       {selectedCountry && countryName && (
-        <button
-          onClick={onClearCountry}
-          className="flex cursor-pointer items-center gap-1.5 rounded-[20px] bg-midnight px-3 py-1.5 text-[0.8rem] font-medium text-warm-white transition-colors duration-200 hover:bg-red-600"
-        >
-          {countryName}
-          <X className="h-3 w-3" />
-        </button>
+        <FilterPill label={countryName} onClear={onClearCountry} />
       )}
 
       {isSortNonDefault && (
-        <button
-          onClick={onClearSort}
-          className="flex cursor-pointer items-center gap-1.5 rounded-[20px] bg-midnight px-3 py-1.5 text-[0.8rem] font-medium text-warm-white transition-colors duration-200 hover:bg-red-600"
-        >
-          {SORT_LABELS[sort]}
-          <X className="h-3 w-3" />
-        </button>
+        <FilterPill label={SORT_LABELS[sort]} onClear={onClearSort} />
       )}
 
       {radius !== null && (
-        <button
-          onClick={onClearRadius}
-          className="flex cursor-pointer items-center gap-1.5 rounded-[20px] bg-midnight px-3 py-1.5 text-[0.8rem] font-medium text-warm-white transition-colors duration-200 hover:bg-red-600"
-        >
-          Within {radius} km
-          <X className="h-3 w-3" />
-        </button>
+        <FilterPill label={`Within ${radius} km`} onClear={onClearRadius} />
       )}
 
       <button

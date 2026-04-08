@@ -3,7 +3,7 @@ import { graphqlClient } from '@/lib/graphql/client';
 import { LIST_BRANCHES } from '@/lib/graphql/queries';
 import type { Branch, BranchQueryResult, CountryOption } from '@/types/branch';
 
-const BATCH_SIZE = 100;
+import { BATCH_SIZE } from '@/constants/config';
 
 async function fetchAllBranches(): Promise<Branch[]> {
   // First request to get total count

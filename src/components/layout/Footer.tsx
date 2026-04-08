@@ -9,10 +9,7 @@ export default function Footer() {
           <div>
             <div className="mb-4 flex items-center gap-2">
               <MapPin className="h-5 w-5 text-gold" />
-              <span
-                className="text-[1.8rem] font-bold text-warm-white"
-                style={{ fontFamily: "'Playfair Display', serif" }}
-              >
+              <span className="font-heading text-[1.8rem] font-bold text-warm-white">
                 Brightstream
               </span>
             </div>

@@ -11,13 +11,13 @@ import type {
   PaginatedBranches,
 } from '@/types/branch';
 
-const DEFAULT_LIMIT = 12;
+import { ITEMS_PER_PAGE } from '@/constants/config';
 
 async function fetchBranches(
   params: BranchSearchParams,
   signal?: AbortSignal,
 ): Promise<PaginatedBranches> {
-  const limit = params.limit ?? DEFAULT_LIMIT;
+  const limit = params.limit ?? ITEMS_PER_PAGE;
   const skip = params.skip ?? 0;
   const hasQuery = params.query && params.query.trim().length > 0;
 

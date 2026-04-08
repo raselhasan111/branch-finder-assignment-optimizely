@@ -1,20 +1,10 @@
-import type { Branch, SortOption } from '@/types/branch';
-import { parseCoordinates } from '@/types/branch';
-import { calculateDistance } from '@/lib/utils';
-
-interface FilterOptions {
-  country: string | null;
-  radius: number | null;
-  sort: SortOption;
-  userLat: number | null;
-  userLon: number | null;
-}
-
-interface FilteredResult {
-  branches: Branch[];
-  total: number;
-  allFiltered: Branch[];
-}
+import type {
+  Branch,
+  SortOption,
+  FilterOptions,
+  FilteredResult,
+} from '@/types/branch';
+import { calculateDistance, parseCoordinates } from '@/lib/utils';
 
 export function filterAndSortBranches(
   branches: Branch[],

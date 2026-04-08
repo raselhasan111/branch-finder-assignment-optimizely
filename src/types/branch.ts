@@ -37,19 +37,29 @@ export interface CountryOption {
   count: number;
 }
 
-export type SortOption = 'relevance' | 'distance' | 'name';
-
-export interface BranchFilters {
-  country: string | null;
-  sort: SortOption;
-  radius: number | null; // km, null = no limit
+export interface BranchWithCoords {
+  branch: Branch;
+  lat: number;
+  lng: number;
 }
 
-export function parseCoordinates(
-  coords: string | null,
-): [number | null, number | null] {
-  if (!coords) return [null, null];
-  const parts = coords.split(',').map((s) => parseFloat(s.trim()));
-  if (parts.length !== 2 || parts.some(isNaN)) return [null, null];
-  return [parts[0], parts[1]];
+export interface HoveredCluster {
+  position: google.maps.LatLngLiteral;
+  count: number;
+}
+
+export type SortOption = 'relevance' | 'distance' | 'name';
+
+export interface FilterOptions {
+  country: string | null;
+  radius: number | null;
+  sort: SortOption;
+  userLat: number | null;
+  userLon: number | null;
+}
+
+export interface FilteredResult {
+  branches: Branch[];
+  total: number;
+  allFiltered: Branch[];
 }
