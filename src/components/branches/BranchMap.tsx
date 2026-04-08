@@ -1,7 +1,6 @@
 import { useState, useCallback, useMemo, memo } from 'react';
 import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
 import type { Branch, BranchWithCoords, HoveredCluster } from '@/types/branch';
-import { parseCoordinates } from '@/types/branch';
 import { useLocation } from '@/contexts/LocationContext';
 import { useMapFullscreen } from '@/hooks/branches/use-map-fullscreen';
 import { useFitBounds } from '@/hooks/branches/use-fit-bounds';
@@ -13,6 +12,7 @@ import BranchPopup from './BranchPopup';
 import ClusterTooltip from './ClusterTooltip';
 import MapControls from './MapControls';
 import { DEFAULT_CENTER, DEFAULT_ZOOM, MAP_STYLES } from '@/constants/map.ts';
+import { parseCoordinates } from '@/lib/utils.ts';
 
 interface BranchMapProps {
   branches: Branch[];

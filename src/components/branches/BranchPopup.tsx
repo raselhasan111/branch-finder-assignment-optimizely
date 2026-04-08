@@ -1,8 +1,8 @@
 import { OverlayViewF } from '@react-google-maps/api';
 import { MapPin, Phone, Mail, Navigation, X } from 'lucide-react';
 import type { Branch } from '@/types/branch';
-import { parseCoordinates } from '@/types/branch';
 import { getDirectionsUrl } from '@/lib/map-utils';
+import { parseCoordinates } from '@/lib/utils.ts';
 
 interface BranchPopupProps {
   selectedBranch: Branch | null;

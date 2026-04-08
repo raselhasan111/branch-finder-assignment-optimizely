@@ -119,22 +119,17 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
-    font-family: 'Jost', sans-serif;
+    @apply bg-background font-sans text-foreground;
     font-weight: 300;
     line-height: 1.8;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-  html {
-    @apply font-sans;
-  }
   h1,
   h2,
   h3,
   h4 {
-    font-family: 'Playfair Display', serif;
-    color: var(--midnight);
+    @apply font-heading text-midnight;
   }
 }
 

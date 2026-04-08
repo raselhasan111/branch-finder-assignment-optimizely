@@ -7,9 +7,12 @@ import {
   Star,
 } from 'lucide-react';
 import type { Branch } from '@/types/branch';
-import { parseCoordinates } from '@/types/branch';
 import { useLocation } from '@/contexts/LocationContext';
-import { calculateDistance, formatDistance } from '@/lib/utils';
+import {
+  calculateDistance,
+  formatDistance,
+  parseCoordinates,
+} from '@/lib/utils';
 
 interface BranchCardProps {
   branch: Branch;

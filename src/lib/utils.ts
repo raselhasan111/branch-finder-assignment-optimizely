@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { FLAG_OFFSET } from '@/constants/ui.ts';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -26,4 +27,27 @@ export function calculateDistance(
 
 function deg2rad(deg: number) {
   return deg * (Math.PI / 180);
+}
+
+export function formatDistance(km: number): string {
+  if (km < 1) return `${Math.round(km * 1000)} m`;
+  if (km < 10) return `${km.toFixed(1)} km`;
+  return `${Math.round(km)} km`;
+}
+
+export function countryFlag(code: string): string {
+  if (code.length !== 2) return '';
+  return String.fromCodePoint(
+    code.charCodeAt(0) - 65 + FLAG_OFFSET,
+    code.charCodeAt(1) - 65 + FLAG_OFFSET,
+  );
+}
+
+export function parseCoordinates(
+  coords: string | null,
+): [number | null, number | null] {
+  if (!coords) return [null, null];
+  const parts = coords.split(',').map((s) => parseFloat(s.trim()));
+  if (parts.length !== 2 || parts.some(isNaN)) return [null, null];
+  return [parts[0], parts[1]];
 }
