@@ -47,7 +47,6 @@ export default function Pagination({
             <span
               key={`ellipsis-${i}`}
               className="flex h-10 w-10 items-center justify-center text-[0.95rem] text-slate-brand"
-              style={{ fontFamily: "'Jost', sans-serif" }}
             >
               &hellip;
             </span>
@@ -57,7 +56,6 @@ export default function Pagination({
               onClick={() => onPageChange(page)}
               className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-[0.95rem] font-semibold transition-all duration-300"
               style={{
-                fontFamily: "'Jost', sans-serif",
                 background: page === currentPage ? '#d4af37' : '#f8f6f1',
                 color: page === currentPage ? '#0a1628' : '#64748b',
                 boxShadow:

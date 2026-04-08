@@ -9,23 +9,16 @@ export default function BranchError({ error, onRetry }: BranchErrorProps) {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center">
       <AlertTriangle className="mb-6 h-12 w-12 text-gold" />
-      <h3
-        className="mb-3 text-[1.5rem] font-semibold text-midnight"
-        style={{ fontFamily: "'Playfair Display', serif" }}
-      >
+      <h3 className="mb-3 text-[1.5rem] font-semibold text-midnight">
         Unable to Load Branches
       </h3>
-      <p
-        className="mb-8 max-w-md text-[1rem] font-light text-slate-brand"
-        style={{ fontFamily: "'Jost', sans-serif" }}
-      >
+      <p className="mb-8 max-w-md text-[1rem] font-light text-slate-brand">
         {error.message ||
           'Something went wrong while fetching branch data. Please try again.'}
       </p>
       <button
         onClick={onRetry}
-        className="flex cursor-pointer items-center gap-2 rounded-[50px] bg-gold px-8 py-3 text-[1rem] font-medium text-midnight transition-all duration-300 hover:-translate-y-[2px] hover:bg-midnight hover:text-warm-white"
-        style={{ fontFamily: "'Jost', sans-serif" }}
+        className="flex cursor-pointer items-center gap-2 rounded-[50px] bg-gold px-8 py-3 text-[1rem] font-medium text-midnight transition-all duration-300 hover:-translate-y-0.5 hover:bg-midnight hover:text-warm-white"
       >
         <RefreshCw className="h-4 w-4" />
         Try Again

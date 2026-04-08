@@ -1,17 +1,10 @@
 import { Radius } from 'lucide-react';
+import { RADIUS_OPTIONS } from '@/constants/config.ts';
 
 interface DistanceRadiusProps {
   value: number | null;
   onChange: (radius: number | null) => void;
 }
-
-const RADIUS_OPTIONS: { value: number | null; label: string }[] = [
-  { value: null, label: 'Any Distance' },
-  { value: 25, label: '25 km' },
-  { value: 50, label: '50 km' },
-  { value: 100, label: '100 km' },
-  { value: 250, label: '250 km' },
-];
 
 export default function DistanceRadius({
   value,
@@ -30,7 +23,6 @@ export default function DistanceRadius({
                 ? 'border-gold bg-midnight text-warm-white'
                 : 'border-transparent bg-cream text-midnight hover:border-gold'
             }`}
-            style={{ fontFamily: "'Jost', sans-serif" }}
           >
             {opt.label}
           </button>

@@ -1,6 +1,8 @@
 import { ChevronLeft, ChevronRight, Globe } from 'lucide-react';
 import { useRef, useState, useEffect, useCallback } from 'react';
 import type { CountryOption } from '@/types/branch';
+import { SKELETON_WIDTHS } from '@/constants/ui';
+import { countryFlag } from '@/lib/utils.ts';
 
 interface CountryFilterProps {
   countries: CountryOption[];
@@ -9,28 +11,16 @@ interface CountryFilterProps {
   isLoading?: boolean;
 }
 
-const FLAG_OFFSET = 0x1f1e6;
-
-function countryFlag(code: string): string {
-  if (code.length !== 2) return '';
-  return String.fromCodePoint(
-    code.charCodeAt(0) - 65 + FLAG_OFFSET,
-    code.charCodeAt(1) - 65 + FLAG_OFFSET,
-  );
-}
-
-const SKELETON_WIDTHS = [120, 140, 100, 160, 110, 130, 150, 90];
-
 function CountryFilterSkeleton() {
   return (
-    <div className="relative mx-auto mt-5 w-full max-w-[750px] px-4">
+    <div className="relative mx-auto mt-5 w-full max-w-187.5 px-4">
       <div className="flex items-center gap-1">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cream/50" />
         <div className="flex min-w-0 flex-1 gap-2 overflow-hidden py-1">
           {SKELETON_WIDTHS.map((w, i) => (
             <div
               key={i}
-              className="h-[38px] shrink-0 animate-pulse rounded-[25px] bg-cream"
+              className="h-9.5 shrink-0 animate-pulse rounded-[25px] bg-cream"
               style={{ width: w }}
             />
           ))}
@@ -83,7 +73,7 @@ export default function CountryFilter({
   if (countries.length === 0) return null;
 
   return (
-    <div className="relative mx-auto mt-5 w-full max-w-[750px] px-4">
+    <div className="relative mx-auto mt-5 w-full max-w-187.5 px-4">
       <div className="flex items-center gap-1">
         {/* Left arrow — always rendered, fades in/out */}
         <button
@@ -103,23 +93,13 @@ export default function CountryFilter({
         <div className="relative min-w-0 flex-1">
           {/* Left fade mask */}
           <div
-            className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 transition-opacity duration-300"
-            style={{
-              opacity: canScrollLeft ? 1 : 0,
-              background:
-                'linear-gradient(to right, var(--color-warm-white), transparent)',
-            }}
+            className={`pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-linear-to-r from-warm-white to-transparent transition-opacity duration-300 ${canScrollLeft ? 'opacity-100' : 'opacity-0'}`}
           />
 
           {/* Pills container */}
           <div
             ref={scrollRef}
-            className="flex gap-2 overflow-x-auto py-1"
-            style={{
-              scrollbarWidth: 'none',
-              msOverflowStyle: 'none',
-              WebkitOverflowScrolling: 'touch',
-            }}
+            className="flex gap-2 overflow-x-auto py-1 [scrollbar-width:none] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch]"
           >
             {/* All countries pill */}
             <button
@@ -129,7 +109,6 @@ export default function CountryFilter({
                   ? 'border-gold bg-midnight text-warm-white'
                   : 'border-transparent bg-cream text-midnight hover:border-gold'
               }`}
-              style={{ fontFamily: "'Jost', sans-serif" }}
             >
               <Globe className="h-3.5 w-3.5" />
               All Countries
@@ -146,7 +125,6 @@ export default function CountryFilter({
                     ? 'border-gold bg-midnight text-warm-white'
                     : 'border-transparent bg-cream text-midnight hover:border-gold'
                 }`}
-                style={{ fontFamily: "'Jost', sans-serif" }}
               >
                 <span className="text-base leading-none">
                   {countryFlag(c.countryCode)}
@@ -159,12 +137,7 @@ export default function CountryFilter({
 
           {/* Right fade mask */}
           <div
-            className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 transition-opacity duration-300"
-            style={{
-              opacity: canScrollRight ? 1 : 0,
-              background:
-                'linear-gradient(to left, var(--color-warm-white), transparent)',
-            }}
+            className={`pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-linear-to-l from-warm-white to-transparent transition-opacity duration-300 ${canScrollRight ? 'opacity-100' : 'opacity-0'}`}
           />
         </div>
 
