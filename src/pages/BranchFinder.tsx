@@ -71,7 +71,7 @@ export default function BranchFinder() {
         className="mx-auto max-w-350 px-[5%] pb-32 pt-16"
       >
         {/* Controls row: header + sort/radius */}
-        <div className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+        <div className="mb-8 flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
           <BranchResultsHeader
             isLoading={isLoading}
             totalResults={totalResults}

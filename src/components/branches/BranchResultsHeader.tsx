@@ -12,7 +12,7 @@ export default function BranchResultsHeader({
   queryText,
 }: BranchResultsHeaderProps) {
   return (
-    <div className="flex flex-col lg:max-w-150">
+    <div className="flex flex-col xl:max-w-150">
       <span className="mb-3 text-[0.9rem] font-medium uppercase tracking-[3px] text-sage">
         Branch Results
       </span>

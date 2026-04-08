@@ -20,7 +20,7 @@ export default function BranchControls({
   onRadiusChange,
 }: BranchControlsProps) {
   return (
-    <div className="flex flex-wrap items-center gap-4 max-lg:justify-end">
+    <div className="flex flex-wrap items-center gap-4 max-xl:justify-end">
       <SortSelect
         value={effectiveSort}
         onChange={onSortChange}
